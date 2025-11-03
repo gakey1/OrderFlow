@@ -2,11 +2,11 @@
 
 A React Native mobile application for managing customer orders in small businesses, with real-time updates and intuitive status tracking.
 
-## 📱 About
+## About
 
 OrderFlow streamlines the order management process for small businesses like cafes, bakeries, and takeaway shops. Staff can quickly create, track, and update customer orders with a mobile-first design optimized for speed during busy periods.
 
-## ✨ Features
+## Features
 
 - **Order Management**: Create, view, edit, and delete customer orders
 - **Status Tracking**: Track orders through four stages (New → Processing → Ready → Collected)
@@ -14,7 +14,7 @@ OrderFlow streamlines the order management process for small businesses like caf
 - **Search & Filter**: Find orders by customer name or phone number
 - **Mobile Optimized**: Touch-friendly interface designed for phones and tablets
 
-## 🛠 Tech Stack
+## Tech Stack
 
 - **Frontend**: React Native with Expo
 - **Language**: TypeScript
@@ -22,7 +22,7 @@ OrderFlow streamlines the order management process for small businesses like caf
 - **Navigation**: React Navigation v6
 - **Development**: Expo CLI
 
-## 📦 Installation
+## Installation
 
 ### Prerequisites
 
@@ -61,7 +61,7 @@ OrderFlow streamlines the order management process for small businesses like caf
    - **Android**: Press `a` in terminal or scan QR code with Expo Go app
    - **Web**: Press `w` in terminal (limited functionality)
 
-## 🎨 Design
+## Design
 
 OrderFlow follows a clean, mobile-first design with:
 
@@ -85,7 +85,7 @@ OrderFlow/
 └── package.json        # Dependencies and scripts
 ```
 
-## 🔥 Firebase Setup
+## Firebase Setup
 
 ### Authentication
 - Email/password authentication for staff members
@@ -140,7 +140,7 @@ service cloud.firestore {
 }
 ```
 
-## 🚀 Development
+## Development
 
 ### Available Scripts
 
@@ -156,7 +156,7 @@ service cloud.firestore {
 3. Update TypeScript types in `src/types/index.ts`
 4. Test on both iOS and Android platforms
 
-## 📱 Screens
+## Screens
 
 - **Login**: Staff authentication
 - **Dashboard**: Orders list with search and filters
@@ -164,7 +164,7 @@ service cloud.firestore {
 - **Add Order**: Create new customer orders
 - **Profile**: User settings and logout
 
-## 🧪 Testing
+## Testing
 
 ### Manual Testing Checklist
 
@@ -184,7 +184,7 @@ service cloud.firestore {
 - [ ] Tablet (iPad/Android)
 - [ ] Different network conditions
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -205,25 +205,25 @@ npx expo start --clear
 - Try tunnel mode: `npx expo start --tunnel`
 - Clear Expo cache: `npx expo start --clear`
 
-## 🤝 Contributing
+## Contributing
 
-This is an academic project. For team members:
+This is Group D project and Steps For team members:
 
-1. Create feature branches for new work
+1. Create feature branches for new work **DO NOT WORK ON MAIN BRANCH**
 2. Test thoroughly before merging
 3. Write clear commit messages
 4. Update documentation as needed
 
-## 📄 License
+## License
 
 This project is for educational purposes as part of university coursework.
 
-## 👥 Team
+## Team
 
-- **Team Member 1**: [Role]
-- **Team Member 2**: [Role]  
-- **Team Member 3**: [Role]
+- **Yvonne Gitonga**: [Role]
+- **Hui-Yun LO Wendy**: [Role]  
+- **Tausif Rahman**: [Role]
 
 ---
 
-**Built with React Native + Expo | University Project 2024**
+**Built with React Native + Expo | OrderFlow 2025**
