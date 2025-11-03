@@ -66,7 +66,7 @@ OrderFlow streamlines the order management process for small businesses like caf
 ### Current App State
 When you first run the app, you should see this welcome screen:
 
-<img src="https://github.com/user-attachments/assets/your-screenshot-url" alt="OrderFlow Welcome Screen" width="300">
+<img src="assets/welcome-screen.png" alt="OrderFlow Welcome Screen" width="300">
 
 *OrderFlow welcome screen showing the app title and branding*
 
