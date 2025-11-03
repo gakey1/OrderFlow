@@ -164,6 +164,16 @@ service cloud.firestore {
 - **Add Order**: Create new customer orders
 - **Profile**: User settings and logout
 
+## ⚠️ Known Issues & Solutions
+
+### TypeError: expected 'boolean' but had type 'string'
+**Problem**: React Native navigation throws type errors with fontWeight styles.
+**Solution**: Already fixed in codebase. Use numeric strings ('700') instead of 'bold'.
+
+### Expo CLI Missing
+**Problem**: `Cannot find module '@expo/cli'`
+**Solution**: Run `npm install @expo/cli` if not already installed.
+
 ## 🧪 Testing
 
 ### Manual Testing Checklist
