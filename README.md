@@ -2,11 +2,11 @@
 
 A React Native mobile application for managing customer orders in small businesses, with real-time updates and intuitive status tracking.
 
-## 📱 About
+## About
 
 OrderFlow streamlines the order management process for small businesses like cafes, bakeries, and takeaway shops. Staff can quickly create, track, and update customer orders with a mobile-first design optimized for speed during busy periods.
 
-## ✨ Features
+## Features
 
 - **Order Management**: Create, view, edit, and delete customer orders
 - **Status Tracking**: Track orders through four stages (New → Processing → Ready → Collected)
@@ -14,7 +14,7 @@ OrderFlow streamlines the order management process for small businesses like caf
 - **Search & Filter**: Find orders by customer name or phone number
 - **Mobile Optimized**: Touch-friendly interface designed for phones and tablets
 
-## 🛠 Tech Stack
+## Tech Stack
 
 - **Frontend**: React Native with Expo
 - **Language**: TypeScript
@@ -22,7 +22,7 @@ OrderFlow streamlines the order management process for small businesses like caf
 - **Navigation**: React Navigation v6
 - **Development**: Expo CLI
 
-## 📦 Installation
+## Installation
 
 ### Prerequisites
 
@@ -61,7 +61,7 @@ OrderFlow streamlines the order management process for small businesses like caf
    - **Android**: Press `a` in terminal or scan QR code with Expo Go app
    - **Web**: Press `w` in terminal (limited functionality)
 
-## 🎨 Design
+## Design
 
 OrderFlow follows a clean, mobile-first design with:
 
@@ -85,7 +85,7 @@ OrderFlow/
 └── package.json        # Dependencies and scripts
 ```
 
-## 🔥 Firebase Setup
+## Firebase Setup
 
 ### Authentication
 - Email/password authentication for staff members
@@ -140,7 +140,7 @@ service cloud.firestore {
 }
 ```
 
-## 🚀 Development
+## Development
 
 ### Available Scripts
 
@@ -156,7 +156,7 @@ service cloud.firestore {
 3. Update TypeScript types in `src/types/index.ts`
 4. Test on both iOS and Android platforms
 
-## 📱 Screens
+## Screens
 
 - **Login**: Staff authentication
 - **Dashboard**: Orders list with search and filters
@@ -194,7 +194,7 @@ service cloud.firestore {
 - [ ] Tablet (iPad/Android)
 - [ ] Different network conditions
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
