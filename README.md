@@ -61,6 +61,15 @@ OrderFlow streamlines the order management process for small businesses like caf
    - **Android**: Press `a` in terminal or scan QR code with Expo Go app
    - **Web**: Press `w` in terminal (limited functionality)
 
+## Screenshots
+
+### Current App State
+When you first run the app, you should see this welcome screen:
+
+<img src="https://github.com/user-attachments/assets/your-screenshot-url" alt="OrderFlow Welcome Screen" width="300">
+
+*OrderFlow welcome screen showing the app title and branding*
+
 ## Design
 
 OrderFlow follows a clean, mobile-first design with:
@@ -70,7 +79,7 @@ OrderFlow follows a clean, mobile-first design with:
 - **Spacing**: 8pt grid system for consistent layouts
 - **Accessibility**: WCAG AA compliance with 44pt minimum touch targets
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 OrderFlow/
@@ -174,7 +183,7 @@ service cloud.firestore {
 **Problem**: `Cannot find module '@expo/cli'`
 **Solution**: Run `npm install @expo/cli` if not already installed.
 
-## 🧪 Testing
+## Testing
 
 ### Manual Testing Checklist
 
@@ -215,25 +224,25 @@ npx expo start --clear
 - Try tunnel mode: `npx expo start --tunnel`
 - Clear Expo cache: `npx expo start --clear`
 
-## 🤝 Contributing
+## Contributing
 
-This is an academic project. For team members:
+Next steps for team members:
 
 1. Create feature branches for new work
 2. Test thoroughly before merging
 3. Write clear commit messages
 4. Update documentation as needed
 
-## 📄 License
+## License
 
 This project is for educational purposes as part of university coursework.
 
-## 👥 Team
+## Team
 
-- **Team Member 1**: [Role]
-- **Team Member 2**: [Role]  
-- **Team Member 3**: [Role]
+- **Yvonne Gitonga**: [Role]
+- **Tausif Rahman**: [Role]  
+- **Hui-Yo LO Wendy**: [Role]
 
 ---
 
-**Built with React Native + Expo | University Project 2024**
+**Built with React Native + Expo | Group D Cross-Platform Apps 2025**
