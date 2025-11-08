@@ -7,6 +7,8 @@ import {
   StyleSheet,
   Alert 
 } from 'react-native';
+import { signOut } from 'firebase/auth';
+import { auth } from '../config/firebase';
 
 // Mock order data for now
 const mockOrders = [
@@ -47,7 +49,14 @@ export default function DashboardScreen({ navigation }: any) {
         { 
           text: 'Logout', 
           style: 'destructive',
-          onPress: () => navigation.navigate('Login')
+          onPress: async () => {
+            try {
+              await signOut(auth);
+              // Navigation will happen automatically via AuthContext
+            } catch (error) {
+              Alert.alert('Error', 'Failed to logout');
+            }
+          }
         }
       ]
     );

@@ -8,26 +8,55 @@ import {
   Alert,
   ActivityIndicator 
 } from 'react-native';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../config/firebase';
 
 export default function LoginScreen({ navigation }: any) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
 
-  const handleLogin = () => {
+  const handleAuth = async () => {
     if (!email || !password) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
 
-    // For now, navigate directly to dashboard
-    // We'll add Firebase auth in next phase
+    if (password.length < 6) {
+      Alert.alert('Error', 'Password must be at least 6 characters');
+      return;
+    }
+
     setLoading(true);
     
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      if (isSignUp) {
+        await createUserWithEmailAndPassword(auth, email, password);
+        Alert.alert('Success', 'Account created successfully!');
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
+      }
       navigation.navigate('Dashboard');
-    }, 1000);
+    } catch (error: any) {
+      let errorMessage = 'An error occurred';
+      
+      if (error.code === 'auth/user-not-found') {
+        errorMessage = 'No account found with this email';
+      } else if (error.code === 'auth/wrong-password') {
+        errorMessage = 'Incorrect password';
+      } else if (error.code === 'auth/email-already-in-use') {
+        errorMessage = 'Email already in use';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Invalid email format';
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = 'Password is too weak';
+      }
+      
+      Alert.alert('Error', errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -59,14 +88,25 @@ export default function LoginScreen({ navigation }: any) {
 
         <TouchableOpacity 
           style={[styles.loginButton, loading && styles.loginButtonDisabled]}
-          onPress={handleLogin}
+          onPress={handleAuth}
           disabled={loading}
         >
           {loading ? (
             <ActivityIndicator color="#FFFFFF" />
           ) : (
-            <Text style={styles.loginButtonText}>Login</Text>
+            <Text style={styles.loginButtonText}>
+              {isSignUp ? 'Sign Up' : 'Login'}
+            </Text>
           )}
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.toggleButton}
+          onPress={() => setIsSignUp(!isSignUp)}
+        >
+          <Text style={styles.toggleText}>
+            {isSignUp ? 'Already have an account? Login' : 'Need an account? Sign Up'}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -123,5 +163,14 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  toggleButton: {
+    marginTop: 16,
+    alignItems: 'center',
+  },
+  toggleText: {
+    color: '#006D77',
+    fontSize: 14,
+    fontWeight: '500',
   },
 });
