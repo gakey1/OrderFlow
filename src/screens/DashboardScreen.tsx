@@ -75,8 +75,7 @@ export default function DashboardScreen({ navigation }: any) {
   };
 
   const handleOrderPress = (orderId: string) => {
-    // TODO: Navigate to order detail screen
-    Alert.alert('Order Details', `Order ID: ${orderId}\nFeature coming soon!`);
+    navigation.navigate('OrderDetail', { orderId });
   };
 
   if (loading) {

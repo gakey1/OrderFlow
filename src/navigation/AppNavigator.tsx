@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import LoginScreen from '../screens/LoginScreen';
 import DashboardScreen from '../screens/DashboardScreen';
 import AddOrderScreen from '../screens/AddOrderScreen';
+import OrderDetailScreen from '../screens/OrderDetailScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -40,6 +41,11 @@ export default function AppNavigator() {
                 title: 'New Order',
                 presentation: 'modal'
               }}
+            />
+            <Stack.Screen 
+              name="OrderDetail" 
+              component={OrderDetailScreen}
+              options={{ title: 'Order Details' }}
             />
           </>
         ) : (
