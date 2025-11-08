@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 // Import screens
 import LoginScreen from '../screens/LoginScreen';
 import DashboardScreen from '../screens/DashboardScreen';
+import AddOrderScreen from '../screens/AddOrderScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -26,11 +27,21 @@ export default function AppNavigator() {
     <NavigationContainer>
       <Stack.Navigator>
         {user ? (
-          <Stack.Screen 
-            name="Dashboard" 
-            component={DashboardScreen}
-            options={{ title: 'Orders' }}
-          />
+          <>
+            <Stack.Screen 
+              name="Dashboard" 
+              component={DashboardScreen}
+              options={{ title: 'Orders' }}
+            />
+            <Stack.Screen 
+              name="AddOrder" 
+              component={AddOrderScreen}
+              options={{ 
+                title: 'New Order',
+                presentation: 'modal'
+              }}
+            />
+          </>
         ) : (
           <Stack.Screen 
             name="Login" 

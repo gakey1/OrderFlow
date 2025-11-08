@@ -5,40 +5,52 @@ import {
   FlatList, 
   TouchableOpacity, 
   StyleSheet,
-  Alert 
+  Alert,
+  ActivityIndicator 
 } from 'react-native';
 import { signOut } from 'firebase/auth';
-import { auth } from '../config/firebase';
-
-// Mock order data for now
-const mockOrders = [
-  {
-    id: '1',
-    customerName: 'John Smith',
-    phone: '0412345678',
-    notes: 'Regular coffee, no sugar',
-    status: 'new',
-    createdAt: new Date().toLocaleDateString(),
-  },
-  {
-    id: '2', 
-    customerName: 'Sarah Wilson',
-    phone: '0498765432',
-    notes: 'Latte with oat milk',
-    status: 'processing',
-    createdAt: new Date().toLocaleDateString(),
-  }
-];
-
-const statusColors = {
-  new: '#BEE3F8',
-  processing: '#FED7AA', 
-  ready: '#9AE6B4',
-  collected: '#E2E8F0'
-};
+import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
+import { auth, db } from '../config/firebase';
+import { Order } from '../types';
+import OrderCard from '../components/OrderCard';
 
 export default function DashboardScreen({ navigation }: any) {
-  const [orders, setOrders] = useState(mockOrders);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Set up real-time listener for orders
+    const ordersQuery = query(
+      collection(db, 'orders'),
+      orderBy('createdAt', 'desc')
+    );
+
+    const unsubscribe = onSnapshot(ordersQuery, (snapshot) => {
+      const ordersData: Order[] = [];
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        ordersData.push({
+          id: doc.id,
+          customerName: data.customerName,
+          phone: data.phone,
+          notes: data.notes,
+          status: data.status,
+          createdAt: data.createdAt?.toDate() || new Date(),
+          updatedAt: data.updatedAt?.toDate() || new Date(),
+          createdBy: data.createdBy,
+          history: data.history || []
+        });
+      });
+      setOrders(ordersData);
+      setLoading(false);
+    }, (error) => {
+      console.error('Error fetching orders:', error);
+      Alert.alert('Error', 'Failed to fetch orders');
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const handleLogout = () => {
     Alert.alert(
@@ -62,19 +74,19 @@ export default function DashboardScreen({ navigation }: any) {
     );
   };
 
-  const OrderCard = ({ item }: any) => (
-    <View style={styles.orderCard}>
-      <View style={styles.orderHeader}>
-        <Text style={styles.customerName}>{item.customerName}</Text>
-        <View style={[styles.statusBadge, { backgroundColor: statusColors[item.status] }]}>
-          <Text style={styles.statusText}>{item.status.toUpperCase()}</Text>
-        </View>
+  const handleOrderPress = (orderId: string) => {
+    // TODO: Navigate to order detail screen
+    Alert.alert('Order Details', `Order ID: ${orderId}\nFeature coming soon!`);
+  };
+
+  if (loading) {
+    return (
+      <View style={[styles.container, styles.centered]}>
+        <ActivityIndicator size="large" color="#006D77" />
+        <Text style={styles.loadingText}>Loading orders...</Text>
       </View>
-      <Text style={styles.phoneNumber}>{item.phone}</Text>
-      <Text style={styles.notes}>{item.notes}</Text>
-      <Text style={styles.date}>{item.createdAt}</Text>
-    </View>
-  );
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -93,11 +105,26 @@ export default function DashboardScreen({ navigation }: any) {
       ) : (
         <FlatList
           data={orders}
-          renderItem={OrderCard}
+          renderItem={({ item }) => (
+            <OrderCard 
+              order={item} 
+              onPress={handleOrderPress}
+            />
+          )}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.ordersList}
+          showsVerticalScrollIndicator={false}
         />
       )}
+      
+      {/* Floating Action Button */}
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => navigation.navigate('AddOrder')}
+        activeOpacity={0.8}
+      >
+        <Text style={styles.fabText}>+</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -106,6 +133,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8F9FA',
+  },
+  centered: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
     flexDirection: 'row',
@@ -130,53 +161,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#718096',
+  },
   ordersList: {
     padding: 20,
     paddingTop: 0,
-  },
-  orderCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  orderHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  customerName: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#2D3748',
-    flex: 1,
-  },
-  statusBadge: {
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 4,
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#2D3748',
-  },
-  phoneNumber: {
-    fontSize: 14,
-    color: '#718096',
-    marginBottom: 4,
-  },
-  notes: {
-    fontSize: 14,
-    color: '#4A5568',
-    marginBottom: 8,
-  },
-  date: {
-    fontSize: 12,
-    color: '#A0AEC0',
   },
   emptyState: {
     flex: 1,
@@ -194,5 +186,30 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#718096',
     textAlign: 'center',
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 24,
+    right: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#E07A5F',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+  },
+  fabText: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    lineHeight: 28,
   },
 });
