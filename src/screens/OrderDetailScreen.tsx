@@ -232,7 +232,7 @@ export default function OrderDetailScreen({ route, navigation }: any) {
 
         {order.status === 'collected' && (
           <View style={styles.completedContainer}>
-            <Text style={styles.completedText}>✅ Order Completed</Text>
+            <Text style={styles.completedText}>Order Completed</Text>
           </View>
         )}
       </View>
