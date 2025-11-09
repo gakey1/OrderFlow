@@ -1,7 +1,6 @@
 # OrderFlow - Digital Order Management System
 
-> **Project Status: Complete & Production Ready**  
-> A React Native mobile application for managing customer orders in small businesses, with real-time updates and intuitive status tracking.
+A React Native mobile application for managing customer orders in small businesses, with real-time updates and intuitive status tracking.
 
 ## Overview
 
