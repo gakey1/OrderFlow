@@ -1,3 +1,4 @@
+// Screen for creating new orders
 import React, { useState } from 'react';
 import {
   View,
@@ -15,17 +16,21 @@ import { collection, addDoc, Timestamp } from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
 
 export default function AddOrderScreen({ navigation }: any) {
+  // Form state variables
   const [customerName, setCustomerName] = useState('');
   const [phone, setPhone] = useState('');
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Validate Australian mobile phone numbers (04xxxxxxxx)
   const validatePhone = (phoneNumber: string) => {
     const phoneRegex = /^04\d{8}$/;
     return phoneRegex.test(phoneNumber.replace(/\s/g, ''));
   };
 
+  // Handle form submission and order creation
   const handleCreateOrder = async () => {
+    // Validate required fields
     if (!customerName.trim()) {
       Alert.alert('Error', 'Customer name is required');
       return;
@@ -44,21 +49,24 @@ export default function AddOrderScreen({ navigation }: any) {
     setLoading(true);
 
     try {
+      // Check user authentication
       const currentUser = auth.currentUser;
       if (!currentUser) {
         Alert.alert('Error', 'You must be logged in to create orders');
+        navigation.navigate('Login');
         return;
       }
 
+      // Create order data object
       const orderData = {
         customerName: customerName.trim(),
         phone: phone.trim(),
         notes: notes.trim() || '',
-        status: 'new',
+        status: 'new', // All new orders start as 'new'
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),
         createdBy: currentUser.uid,
-        history: [
+        history: [ // Track status changes
           {
             status: 'new',
             timestamp: Timestamp.now(),
@@ -67,8 +75,10 @@ export default function AddOrderScreen({ navigation }: any) {
         ]
       };
 
+      // Save to Firebase
       await addDoc(collection(db, 'orders'), orderData);
       
+      // Show success message and go back
       Alert.alert(
         'Success',
         'Order created successfully!',

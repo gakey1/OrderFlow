@@ -1,3 +1,4 @@
+// Screen for viewing and updating individual orders
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -9,10 +10,12 @@ import {
   Linking,
   ScrollView
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { doc, updateDoc, getDoc, Timestamp } from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
 import { Order, OrderStatus } from '../types';
 
+// Color scheme for different order statuses
 const statusColors = {
   new: '#BEE3F8',
   processing: '#FED7AA',
@@ -20,13 +23,15 @@ const statusColors = {
   collected: '#E2E8F0'
 };
 
+// Define the order status progression flow
 const statusFlow = {
   new: 'processing',
   processing: 'ready',
   ready: 'collected',
-  collected: null
+  collected: null // Final status - no next step
 };
 
+// Button labels for status progression
 const statusLabels = {
   new: 'Mark as Processing',
   processing: 'Mark as Ready',
@@ -36,6 +41,7 @@ const statusLabels = {
 
 export default function OrderDetailScreen({ route, navigation }: any) {
   const { orderId } = route.params;
+  // Component state
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
@@ -44,11 +50,13 @@ export default function OrderDetailScreen({ route, navigation }: any) {
     fetchOrder();
   }, [orderId]);
 
+  // Fetch order details from Firebase
   const fetchOrder = async () => {
     try {
       const orderDoc = await getDoc(doc(db, 'orders', orderId));
       if (orderDoc.exists()) {
         const data = orderDoc.data();
+        // Convert Firebase data to Order object
         setOrder({
           id: orderDoc.id,
           customerName: data.customerName,
@@ -58,7 +66,10 @@ export default function OrderDetailScreen({ route, navigation }: any) {
           createdAt: data.createdAt?.toDate() || new Date(),
           updatedAt: data.updatedAt?.toDate() || new Date(),
           createdBy: data.createdBy,
-          history: data.history || []
+          history: data.history?.map((entry: any) => ({
+            ...entry,
+            timestamp: entry.timestamp?.toDate() || new Date() // Convert timestamps
+          })) || []
         });
       } else {
         Alert.alert('Error', 'Order not found');
@@ -73,33 +84,39 @@ export default function OrderDetailScreen({ route, navigation }: any) {
     }
   };
 
+  // Update order to next status in the workflow
   const updateOrderStatus = async () => {
     if (!order) return;
 
     const nextStatus = statusFlow[order.status as keyof typeof statusFlow];
-    if (!nextStatus) return;
+    if (!nextStatus) return; // Already at final status
 
     setUpdating(true);
 
     try {
+      // Check authentication
       const currentUser = auth.currentUser;
       if (!currentUser) {
         Alert.alert('Error', 'You must be logged in to update orders');
+        navigation.navigate('Login');
         return;
       }
 
+      // Create history entry for status change
       const newHistoryEntry = {
         status: nextStatus,
         timestamp: Timestamp.now(),
         userId: currentUser.uid
       };
 
+      // Update order in Firebase
       await updateDoc(doc(db, 'orders', orderId), {
         status: nextStatus,
         updatedAt: Timestamp.now(),
-        history: [...order.history, newHistoryEntry]
+        history: [...order.history, newHistoryEntry] // Add to history
       });
 
+      // Update local state to reflect changes
       setOrder({
         ...order,
         status: nextStatus as OrderStatus,
@@ -120,12 +137,14 @@ export default function OrderDetailScreen({ route, navigation }: any) {
     }
   };
 
+  // Open phone dialer to call customer
   const handleCallCustomer = () => {
     if (order?.phone) {
       Linking.openURL(`tel:${order.phone}`);
     }
   };
 
+  // Format date for display in Australian format
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('en-AU', {
       day: 'numeric',
@@ -171,7 +190,10 @@ export default function OrderDetailScreen({ route, navigation }: any) {
           <Text style={styles.customerName}>{order.customerName}</Text>
           
           <TouchableOpacity style={styles.phoneButton} onPress={handleCallCustomer}>
-            <Text style={styles.phoneNumber}>📞 {order.phone}</Text>
+            <View style={styles.phoneRow}>
+              <Ionicons name="call-outline" size={16} color="#006D77" />
+              <Text style={styles.phoneNumber}>{order.phone}</Text>
+            </View>
           </TouchableOpacity>
         </View>
 
@@ -275,6 +297,11 @@ const styles = StyleSheet.create({
   },
   phoneButton: {
     alignSelf: 'flex-start',
+  },
+  phoneRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
   },
   phoneNumber: {
     fontSize: 16,

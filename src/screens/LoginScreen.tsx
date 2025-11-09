@@ -17,6 +17,41 @@ export default function LoginScreen({ navigation }: any) {
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
 
+  const createTestAccount = async () => {
+    setLoading(true);
+    try {
+      const testEmail = 'test@orderflow.com';
+      const testPassword = 'test123456';
+      
+      console.log('Creating test account...');
+      await createUserWithEmailAndPassword(auth, testEmail, testPassword);
+      
+      setEmail(testEmail);
+      setPassword(testPassword);
+      
+      Alert.alert(
+        'Test Account Created',
+        `Email: ${testEmail}\nPassword: ${testPassword}\n\nYou can now use these credentials to login.`,
+        [{ text: 'OK' }]
+      );
+    } catch (error: any) {
+      if (error.code === 'auth/email-already-in-use') {
+        setEmail('test@orderflow.com');
+        setPassword('test123456');
+        Alert.alert(
+          'Test Account Exists',
+          'Test account already exists!\n\nEmail: test@orderflow.com\nPassword: test123456',
+          [{ text: 'OK' }]
+        );
+      } else {
+        console.error('Test account error:', error);
+        Alert.alert('Error', `Failed to create test account: ${error.message}`);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleAuth = async () => {
     if (!email || !password) {
       Alert.alert('Error', 'Please fill in all fields');
@@ -32,28 +67,78 @@ export default function LoginScreen({ navigation }: any) {
     
     try {
       if (isSignUp) {
-        await createUserWithEmailAndPassword(auth, email, password);
-        Alert.alert('Success', 'Account created successfully!');
+        // Create new user account
+        console.log('Creating account for:', email);
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        console.log('Account created successfully:', userCredential.user.uid);
+        Alert.alert(
+          'Success',
+          'Account created successfully!',
+          [
+            {
+              text: 'OK',
+              onPress: () => navigation.navigate('Main')
+            }
+          ]
+        );
       } else {
-        await signInWithEmailAndPassword(auth, email, password);
+        // Sign in existing user
+        console.log('Signing in user:', email);
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        console.log('User signed in successfully:', userCredential.user.uid);
+        navigation.navigate('Main');
       }
-      navigation.navigate('Dashboard');
     } catch (error: any) {
-      let errorMessage = 'An error occurred';
+      console.error('Authentication error:', error.code, error.message);
+      let errorMessage = 'Authentication failed';
+      let suggestion = '';
       
-      if (error.code === 'auth/user-not-found') {
-        errorMessage = 'No account found with this email';
-      } else if (error.code === 'auth/wrong-password') {
-        errorMessage = 'Incorrect password';
-      } else if (error.code === 'auth/email-already-in-use') {
-        errorMessage = 'Email already in use';
-      } else if (error.code === 'auth/invalid-email') {
-        errorMessage = 'Invalid email format';
-      } else if (error.code === 'auth/weak-password') {
-        errorMessage = 'Password is too weak';
+      switch (error.code) {
+        case 'auth/user-not-found':
+          errorMessage = 'No account found with this email';
+          suggestion = '\n\nTry creating an account first by toggling to Sign Up.';
+          break;
+        case 'auth/wrong-password':
+        case 'auth/invalid-credential':
+          errorMessage = 'Incorrect email or password';
+          suggestion = '\n\nDouble-check your email and password, or create a new account.';
+          break;
+        case 'auth/email-already-in-use':
+          errorMessage = 'Email is already registered';
+          suggestion = '\n\nTry signing in instead of signing up.';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Invalid email address';
+          suggestion = '\n\nPlease enter a valid email format.';
+          break;
+        case 'auth/weak-password':
+          errorMessage = 'Password is too weak';
+          suggestion = '\n\nPassword must be at least 6 characters long.';
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = 'Too many failed attempts';
+          suggestion = '\n\nPlease wait a moment before trying again.';
+          break;
+        case 'auth/network-request-failed':
+          errorMessage = 'Network error';
+          suggestion = '\n\nCheck your internet connection and try again.';
+          break;
+        default:
+          errorMessage = `Authentication failed: ${error.message}`;
+          suggestion = '\n\nPlease try again or contact support if the issue persists.';
       }
       
-      Alert.alert('Error', errorMessage);
+      Alert.alert(
+        'Authentication Error',
+        errorMessage + suggestion,
+        [
+          { text: 'OK' },
+          ...(error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential' ? 
+            [{ text: 'Create Account', onPress: () => setIsSignUp(true) }] : 
+            []
+          )
+        ]
+      );
     } finally {
       setLoading(false);
     }
@@ -106,6 +191,16 @@ export default function LoginScreen({ navigation }: any) {
         >
           <Text style={styles.toggleText}>
             {isSignUp ? 'Already have an account? Login' : 'Need an account? Sign Up'}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.testButton}
+          onPress={createTestAccount}
+          disabled={loading}
+        >
+          <Text style={styles.testButtonText}>
+            Create Test Account
           </Text>
         </TouchableOpacity>
       </View>
@@ -171,6 +266,20 @@ const styles = StyleSheet.create({
   toggleText: {
     color: '#006D77',
     fontSize: 14,
+    fontWeight: '500',
+  },
+  testButton: {
+    marginTop: 12,
+    alignItems: 'center',
+    paddingVertical: 12,
+    backgroundColor: '#F7FAFC',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  testButtonText: {
+    color: '#4A5568',
+    fontSize: 12,
     fontWeight: '500',
   },
 });

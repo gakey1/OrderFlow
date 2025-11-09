@@ -1,3 +1,4 @@
+// Main dashboard screen for viewing and filtering orders
 import React, { useState, useEffect } from 'react';
 import { 
   View, 
@@ -6,78 +7,91 @@ import {
   TouchableOpacity, 
   StyleSheet,
   Alert,
-  ActivityIndicator 
+  ActivityIndicator,
+  TextInput,
+  ScrollView 
 } from 'react-native';
-import { signOut } from 'firebase/auth';
+import { Ionicons } from '@expo/vector-icons';
 import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
 import { Order } from '../types';
 import OrderCard from '../components/OrderCard';
 
+// Define order status types for tab filtering
+type OrderStatus = 'new' | 'processing' | 'ready' | 'collected';
+
 export default function DashboardScreen({ navigation }: any) {
+  // State for orders and UI
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState<OrderStatus>('new'); // Default to 'new' orders
 
   useEffect(() => {
-    // Set up real-time listener for orders
+    // Redirect to login if user not authenticated
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      navigation.navigate('Login');
+      return;
+    }
+
+    // Set up real-time listener for orders from Firebase
     const ordersQuery = query(
       collection(db, 'orders'),
-      orderBy('createdAt', 'desc')
+      orderBy('createdAt', 'desc') // Newest orders first
     );
 
-    const unsubscribe = onSnapshot(ordersQuery, (snapshot) => {
-      const ordersData: Order[] = [];
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        ordersData.push({
-          id: doc.id,
-          customerName: data.customerName,
-          phone: data.phone,
-          notes: data.notes,
-          status: data.status,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
-          createdBy: data.createdBy,
-          history: data.history || []
+    const unsubscribe = onSnapshot(
+      ordersQuery,
+      (querySnapshot) => {
+        // Convert Firebase documents to Order objects
+        const ordersData: Order[] = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          ordersData.push({
+            id: doc.id,
+            customerName: data.customerName,
+            phone: data.phone,
+            notes: data.notes || '',
+            status: data.status,
+            createdAt: data.createdAt?.toDate() || new Date(), // Convert Firebase timestamp
+            updatedAt: data.updatedAt?.toDate() || new Date(),
+            createdBy: data.createdBy,
+            history: data.history || []
+          });
         });
-      });
-      setOrders(ordersData);
-      setLoading(false);
-    }, (error) => {
-      console.error('Error fetching orders:', error);
-      Alert.alert('Error', 'Failed to fetch orders');
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  const handleLogout = () => {
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Logout', 
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await signOut(auth);
-              // Navigation will happen automatically via AuthContext
-            } catch (error) {
-              Alert.alert('Error', 'Failed to logout');
-            }
-          }
-        }
-      ]
+        setOrders(ordersData);
+        setLoading(false);
+      },
+      (error) => {
+        console.error('Error fetching orders:', error);
+        Alert.alert('Error', 'Failed to load orders');
+        setLoading(false);
+      }
     );
-  };
 
+    // Clean up listener when component unmounts
+    return () => unsubscribe();
+  }, [navigation]);
+
+  // Filter orders based on search or selected tab
+  const filteredOrders = orders.filter(order => {
+    // Search mode: look through all orders by name or phone
+    if (searchQuery.trim()) {
+      return order.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+             order.phone.includes(searchQuery);
+    }
+    
+    // Tab mode: show only orders matching selected status
+    return order.status === activeTab;
+  });
+
+  // Navigate to order detail screen
   const handleOrderPress = (orderId: string) => {
     navigation.navigate('OrderDetail', { orderId });
   };
 
+  // Show loading spinner while fetching orders
   if (loading) {
     return (
       <View style={[styles.container, styles.centered]}>
@@ -89,21 +103,77 @@ export default function DashboardScreen({ navigation }: any) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Orders</Text>
-        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-          <Text style={styles.logoutText}>Logout</Text>
+      {/* Search Bar - searches both name and phone */}
+      <View style={styles.searchContainer}>
+        <Ionicons name="search" size={20} color="#A0AEC0" style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search by name or phone..."
+          placeholderTextColor="#A0AEC0"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+      </View>
+
+      {/* Status Filter Tabs */}
+      <View style={styles.tabsContainer}>
+        {/* New Orders Tab */}
+        <TouchableOpacity 
+          style={[styles.tab, activeTab === 'new' && styles.activeTab]}
+          onPress={() => setActiveTab('new')}
+        >
+          <Text style={[styles.tabText, activeTab === 'new' && styles.activeTabText]}>
+            New
+          </Text>
+        </TouchableOpacity>
+        
+        {/* Processing Orders Tab */}
+        <TouchableOpacity 
+          style={[styles.tab, activeTab === 'processing' && styles.activeTab]}
+          onPress={() => setActiveTab('processing')}
+        >
+          <Text style={[styles.tabText, activeTab === 'processing' && styles.activeTabText]}>
+            Processing
+          </Text>
+        </TouchableOpacity>
+        
+        {/* Ready Orders Tab */}
+        <TouchableOpacity 
+          style={[styles.tab, activeTab === 'ready' && styles.activeTab]}
+          onPress={() => setActiveTab('ready')}
+        >
+          <Text style={[styles.tabText, activeTab === 'ready' && styles.activeTabText]}>
+            Ready
+          </Text>
+        </TouchableOpacity>
+        
+        {/* Collected Orders Tab */}
+        <TouchableOpacity 
+          style={[styles.tab, activeTab === 'collected' && styles.activeTab]}
+          onPress={() => setActiveTab('collected')}
+        >
+          <Text style={[styles.tabText, activeTab === 'collected' && styles.activeTabText]}>
+            Collected
+          </Text>
         </TouchableOpacity>
       </View>
 
-      {orders.length === 0 ? (
+      {/* Orders List or Empty State */}
+      {filteredOrders.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyText}>No orders yet</Text>
-          <Text style={styles.emptySubtext}>Orders will appear here when created</Text>
+          <Text style={styles.emptyText}>
+            {searchQuery ? 'No orders found' : `No ${activeTab} orders`}
+          </Text>
+          <Text style={styles.emptySubtext}>
+            {searchQuery 
+              ? 'Try adjusting your search or switch to a different tab'
+              : `No orders with ${activeTab} status yet`
+            }
+          </Text>
         </View>
       ) : (
         <FlatList
-          data={orders}
+          data={filteredOrders}
           renderItem={({ item }) => (
             <OrderCard 
               order={item} 
@@ -116,7 +186,7 @@ export default function DashboardScreen({ navigation }: any) {
         />
       )}
       
-      {/* Floating Action Button */}
+      {/* Floating Action Button - creates new order */}
       <TouchableOpacity
         style={styles.fab}
         onPress={() => navigation.navigate('AddOrder')}
@@ -137,28 +207,53 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  header: {
+  searchContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 20,
-    paddingTop: 10,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#006D77',
-  },
-  logoutButton: {
-    paddingVertical: 8,
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 20,
+    marginTop: 20,
+    marginBottom: 16,
     paddingHorizontal: 16,
-    backgroundColor: '#E53E3E',
-    borderRadius: 6,
+    paddingVertical: 12,
+    borderRadius: 25,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
   },
-  logoutText: {
-    color: '#FFFFFF',
+  searchIcon: {
+    marginRight: 12,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: '#2D3748',
+  },
+  tabsContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  tab: {
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 16,
+    backgroundColor: '#F7FAFC',
+    borderWidth: 0,
+    marginRight: 8,
+    minWidth: 60,
+    alignItems: 'center',
+  },
+  activeTab: {
+    backgroundColor: '#006D77',
+  },
+  tabText: {
     fontSize: 14,
     fontWeight: '600',
+    color: '#718096',
+  },
+  activeTabText: {
+    color: '#FFFFFF',
   },
   loadingText: {
     marginTop: 16,

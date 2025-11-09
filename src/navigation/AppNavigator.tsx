@@ -18,7 +18,7 @@ export default function AppNavigator() {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8F9FA' }}>
         <ActivityIndicator size="large" color="#006D77" />
       </View>
     );
@@ -38,8 +38,7 @@ export default function AppNavigator() {
               name="AddOrder" 
               component={AddOrderScreen}
               options={{ 
-                title: 'New Order',
-                presentation: 'modal'
+                title: 'New Order'
               }}
             />
             <Stack.Screen 

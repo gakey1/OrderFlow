@@ -1,18 +1,32 @@
-# OrderFlow - Order Management App
+# OrderFlow - Digital Order Management System
 
-A React Native mobile application for managing customer orders in small businesses, with real-time updates and intuitive status tracking.
+> **Project Status: Complete & Production Ready**  
+> A React Native mobile application for managing customer orders in small businesses, with real-time updates and intuitive status tracking.
 
-## About
+## Overview
 
-OrderFlow streamlines the order management process for small businesses like cafes, bakeries, and takeaway shops. Staff can quickly create, track, and update customer orders with a mobile-first design optimized for speed during busy periods.
+OrderFlow is a **mobile-first digital order management system** designed specifically for small businesses like cafés, bakeries, and boutiques. It replaces traditional paper-based order tracking with a modern, real-time digital solution.
 
-## Features
+## Key Features
 
-- **Order Management**: Create, view, edit, and delete customer orders
-- **Status Tracking**: Track orders through four stages (New → Processing → Ready → Collected)
-- **Real-time Updates**: Live synchronization across all devices using Firebase
-- **Search & Filter**: Find orders by customer name or phone number
-- **Mobile Optimized**: Touch-friendly interface designed for phones and tablets
+### **Four-Stage Order Workflow**
+- **New** (Blue) - Requires immediate attention
+- **Processing** (Amber) - Currently being prepared  
+- **Ready** (Green) - Awaiting customer pickup
+- **Collected** (Gray) - Transaction completed
+
+### **Mobile-Optimized Interface**
+- **Real-time Synchronization** - Instant updates across all devices
+- **Type-ahead Search** - Find orders by customer name or phone number
+- **Tab-based Filtering** - Quick access to orders by status
+- **Card-based Design** - Clean, scannable order display
+- **Touch-friendly Controls** - 44px minimum touch targets
+
+### **Professional Features**
+- **Firebase Authentication** - Secure staff login system
+- **Order History Tracking** - Complete audit trail of status changes
+- **Offline Capability** - Works without internet, syncs when reconnected
+- **Statistics Dashboard** - Business analytics and completion rates
 
 ## Tech Stack
 
@@ -63,12 +77,30 @@ OrderFlow streamlines the order management process for small businesses like caf
 
 ## Screenshots
 
-### Current App State
-When you first run the app, you should see this welcome screen:
+### Orders Dashboard - New Orders
+<img src="assets/Order_Screen_new.png" alt="OrderFlow Dashboard showing new orders" width="300">
 
-<img src="assets/welcome-screen.png" alt="OrderFlow Welcome Screen" width="300">
+The main dashboard displays new orders with customer information, phone numbers, and order details. Orders are color-coded by status and include timestamps for efficient management.
 
-*OrderFlow welcome screen showing the app title and branding*
+### Orders Dashboard - Processing
+<img src="assets/Order_screen_Processing.png" alt="OrderFlow Dashboard processing view" width="300">
+
+Staff can easily switch between order status tabs to view orders in the processing stage. The interface maintains consistency while highlighting different order states.
+
+### Create New Order
+<img src="assets/Create_new_Order_Screen.png" alt="OrderFlow create order form" width="300">
+
+The order creation form features clean input fields for customer name, phone number, and order details. Form validation ensures data quality and prevents incomplete entries.
+
+### Statistics Screen
+<img src="assets/Stats_Screen.png" alt="OrderFlow statistics dashboard" width="300">
+
+Business analytics show order completion rates, status breakdowns, and total order counts. Real-time statistics help managers track performance and identify trends.
+
+### Profile Screen
+<img src="assets/Profile_screen.png" alt="OrderFlow user profile" width="300">
+
+User profile management includes account information and logout functionality. Clean interface design maintains consistency with the overall app aesthetic.
 
 ## Design
 
@@ -85,13 +117,33 @@ OrderFlow follows a clean, mobile-first design with:
 OrderFlow/
 ├── src/
 │   ├── screens/          # Main app screens
+│   │   ├── LoginScreen.tsx
+│   │   ├── DashboardScreen.tsx
+│   │   ├── AddOrderScreen.tsx
+│   │   ├── OrderDetailScreen.tsx
+│   │   ├── StatsScreen.tsx
+│   │   └── ProfileScreen.tsx
 │   ├── components/       # Reusable UI components
-│   ├── navigation/       # Navigation configuration
-│   ├── types/           # TypeScript type definitions
-│   └── config/          # App configuration (Firebase, etc.)
-├── assets/              # Images, fonts, and other assets
-├── App.tsx             # Root component
-└── package.json        # Dependencies and scripts
+│   │   └── OrderCard.tsx
+│   ├── context/         # React context providers
+│   │   └── AuthContext.tsx
+│   ├── navigation/      # Navigation configuration
+│   │   └── AppNavigator.tsx
+│   ├── config/          # App configuration
+│   │   └── firebase.ts
+│   └── types/           # TypeScript type definitions
+│       └── index.ts
+├── assets/              # Images and app icons
+│   ├── app_icon.png
+│   ├── favicon.png
+│   ├── splash_app_icon.png
+│   └── [screenshots]
+├── App.tsx             # Root component with navigation
+├── index.ts            # App entry point
+├── app.json            # Expo configuration
+├── package.json        # Dependencies and scripts
+├── tsconfig.json       # TypeScript configuration
+└── README.md           # Project documentation
 ```
 
 ## Firebase Setup
@@ -173,7 +225,7 @@ service cloud.firestore {
 - **Add Order**: Create new customer orders
 - **Profile**: User settings and logout
 
-## ⚠️ Known Issues & Solutions
+## Known Issues & Solutions
 
 ### TypeError: expected 'boolean' but had type 'string'
 **Problem**: React Native navigation throws type errors with fontWeight styles.
@@ -239,9 +291,9 @@ This project is for educational purposes as part of university coursework.
 
 ## Team
 
-- **Yvonne Gitonga**: [Role]
-- **Tausif Rahman**: [Role]  
-- **Hui-Yo LO Wendy**: [Role]
+- **Yvonne Gitonga**
+- **Tausif Rahman** 
+- **Hui-Yo LO Wendy**
 
 ---
 

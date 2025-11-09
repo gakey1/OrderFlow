@@ -1,12 +1,16 @@
+// Reusable order card component for displaying order info
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Order } from '../types';
 
+// Props interface for OrderCard component
 interface OrderCardProps {
   order: Order;
   onPress: (orderId: string) => void;
 }
 
+// Status color mapping for badges
 const statusColors = {
   new: '#BEE3F8',
   processing: '#FED7AA', 
@@ -15,13 +19,18 @@ const statusColors = {
 };
 
 export default function OrderCard({ order, onPress }: OrderCardProps) {
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-AU', {
-      day: 'numeric',
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  // Calculate time since order creation
+  const getTimeAgo = (date: Date) => {
+    const now = new Date();
+    const diffInMs = now.getTime() - date.getTime();
+    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    const diffInDays = Math.floor(diffInHours / 24);
+
+    if (diffInMinutes < 1) return 'Just now';
+    if (diffInMinutes < 60) return `${diffInMinutes} minute${diffInMinutes === 1 ? '' : 's'} ago`;
+    if (diffInHours < 24) return `${diffInHours} hour${diffInHours === 1 ? '' : 's'} ago`;
+    return `${diffInDays} day${diffInDays === 1 ? '' : 's'} ago`;
   };
 
   return (
@@ -30,6 +39,7 @@ export default function OrderCard({ order, onPress }: OrderCardProps) {
       onPress={() => onPress(order.id)}
       activeOpacity={0.7}
     >
+      {/* Header with customer name and status */}
       <View style={styles.header}>
         <Text style={styles.customerName}>{order.customerName}</Text>
         <View style={[styles.statusBadge, { backgroundColor: statusColors[order.status] }]}>
@@ -37,17 +47,27 @@ export default function OrderCard({ order, onPress }: OrderCardProps) {
         </View>
       </View>
       
-      <Text style={styles.phoneNumber}>{order.phone}</Text>
+      {/* Phone number row */}
+      <View style={styles.phoneRow}>
+        <Ionicons name="call-outline" size={16} color="#006D77" />
+        <Text style={styles.phoneNumber}>{order.phone}</Text>
+      </View>
       
+      {/* Order notes (if any) */}
       {order.notes && (
-        <Text style={styles.notes} numberOfLines={2}>
-          {order.notes}
-        </Text>
+        <>
+          <View style={styles.divider} />
+          <Text style={styles.notes} numberOfLines={2}>
+            {order.notes}
+          </Text>
+        </>
       )}
       
-      <Text style={styles.date}>
-        Created: {formatDate(order.createdAt)}
-      </Text>
+      {/* Time since creation */}
+      <View style={styles.timeFooter}>
+        <Ionicons name="time-outline" size={14} color="#A0AEC0" />
+        <Text style={styles.timeAgo}>{getTimeAgo(order.createdAt)}</Text>
+      </View>
     </TouchableOpacity>
   );
 }
@@ -55,19 +75,11 @@ export default function OrderCard({ order, onPress }: OrderCardProps) {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 8,
+    borderRadius: 12,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
     borderColor: '#E2E8F0',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
   },
   header: {
     flexDirection: 'row',
@@ -80,31 +92,50 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#2D3748',
     flex: 1,
-    marginRight: 8,
+    marginRight: 12,
   },
   statusBadge: {
     paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 4,
+    paddingHorizontal: 12,
+    borderRadius: 16,
   },
   statusText: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 11,
+    fontWeight: '700',
     color: '#2D3748',
+    letterSpacing: 0.5,
+  },
+  phoneRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    gap: 6,
   },
   phoneNumber: {
-    fontSize: 14,
-    color: '#718096',
-    marginBottom: 4,
+    fontSize: 15,
+    color: '#006D77',
+    fontWeight: '500',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#E2E8F0',
+    marginVertical: 8,
   },
   notes: {
     fontSize: 14,
     color: '#4A5568',
     marginBottom: 8,
-    fontStyle: 'italic',
+    lineHeight: 20,
   },
-  date: {
+  timeFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 4,
+  },
+  timeAgo: {
     fontSize: 12,
     color: '#A0AEC0',
+    fontWeight: '500',
   },
 });
