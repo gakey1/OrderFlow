@@ -292,7 +292,7 @@ This project is for educational purposes as part of university coursework.
 
 - **Yvonne Gitonga**
 - **Tausif Rahman** 
-- **Hui-Yo LO Wendy**
+- **Hui-Yun LO Wendy**
 
 ---
 
