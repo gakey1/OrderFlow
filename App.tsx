@@ -162,3 +162,4 @@ export default function App() {
   );
 }
 // Cross-platform testing: verified on iPhone 15, Samsung S23 Ultra, and iPad mini using Expo Go.
+// Email-linked verification commit.
